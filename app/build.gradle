@@ -49,8 +49,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
 
     //RxJava and RxAndroid..
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+    //implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    //implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
 
     //Retrofit Client..
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
@@ -75,4 +75,8 @@ dependencies {
     //RecyclerView and CardView
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    //Bibuti's Library
+    implementation 'com.github.bibutikoley:SweetAlertDialog:1.0'
+    
 }

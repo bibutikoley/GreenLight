@@ -1,9 +1,11 @@
 package dev.bibuti.greenlight
 
 import android.content.Context
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -12,6 +14,7 @@ import dev.bibuti.greenlight.adapters.UsersAdapter
 import dev.bibuti.greenlight.database.UserViewModel
 import dev.bibuti.greenlight.models.Users
 import dev.bibuti.greenlight.network.RetrofitClient
+import dev.bibuti.sweetalertdialoglibrary.SweetAlertDialog
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.empty_error_layout.*
 import retrofit2.Call
@@ -46,7 +49,7 @@ class MainActivity : AppCompatActivity(),
 
                 error_image.setImageDrawable(resources.getDrawable(R.drawable.ic_box, theme))
                 error_text.text = "You don't have any Users.."
-                error_btn.text = "Refresh from Server"
+                error_btn.text = "Fetch from Server"
                 error_btn.setOnClickListener {
                     makeNetworkRequest()
                 }
@@ -64,12 +67,21 @@ class MainActivity : AppCompatActivity(),
     private fun makeNetworkRequest() {
 
         if (isNetworkAvailable()) {
+
+            val pDialog = SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE)
+            pDialog.progressHelper.barColor = Color.parseColor("#A5DC86")
+            pDialog.titleText = "Fetching data from Server..."
+            pDialog.setCancelable(false)
+            pDialog.show()
+
             RetrofitClient.endpoints.users.enqueue(object : Callback<List<Users>?> {
                 override fun onFailure(call: Call<List<Users>?>, t: Throwable) {
                     //Handle Local Errors..
+                    pDialog.dismiss()
                 }
 
                 override fun onResponse(call: Call<List<Users>?>, response: Response<List<Users>?>) {
+                    pDialog.dismiss()
                     if (response.isSuccessful) {
                         if (response.body()?.isNotEmpty()!!) {
                             userViewModel.insertUsers(response.body()!!)
@@ -97,12 +109,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onDeleteButtonClicked(users: Users) {
-//        if (isNetworkAvailable()) {
-//            //Show you cannot delete in online mode/..
-//        } else {
-//            userViewModel.deleteUser(users)
-//        }
-        userViewModel.deleteUser(users)
+        if (isNetworkAvailable()) {
+            //Show you cannot delete in online mode/..
+            Toast.makeText(this, "Please make sure you are offline to perform this action.", Toast.LENGTH_SHORT).show()
+        } else {
+            userViewModel.deleteUser(users)
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {
